@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	orm.RegisterDataBase("default", "mysql", "dev:199105@tcp(localhost:3306)/highlego?charset=utf8&loc="+url.QueryEscape("Asia/Shanghai")+"")
+	orm.RegisterDataBase("default", "mysql", "dev:199105@tcp(123.56.227.116:3306)/highlego?charset=utf8&loc="+url.QueryEscape("Asia/Shanghai")+"")
 }
 
 func main() {

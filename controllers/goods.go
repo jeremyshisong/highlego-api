@@ -140,17 +140,24 @@ func (c *GoodsController) Post() {
 	c.ServeJSON()
 }
 
-// @Title Get All
-// @Description 获取商品列表
-// @Param	start	query	string	false	"Start position of result set. Must be an integer"
-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
-// @Success 200 {object} models.Goods
-// @Failure 403
-// @router / [get]
+// Title Get All
+// Description 获取商品列表
+// Param	start	query	string	false	"Start position of result set. Must be an integer"
+// Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
+// Success 200 {object} models.Goods
+// Failure 403
+// router / [get]
 func (c *GoodsController) GetAll() {
 	var limit int64 = 10
 	var offset int64 = 0
-
+	// limit: 10 (default is 10)
+	if v, err := c.GetInt64("limit"); err == nil {
+		limit = v
+	}
+	// offset: 0 (default is 0)
+	if v, err := c.GetInt64("start"); err == nil {
+		offset = v
+	}
 	l, err := models.GetAllGoods(offset, limit)
 	if err != nil {
 		ret := cnst.Error()

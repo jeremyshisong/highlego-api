@@ -6,6 +6,20 @@ import (
 
 func init() {
 
+	beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:ChargeController"] = append(beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:ChargeController"],
+		beego.ControllerComments{
+			"GetCharge",
+			`/`,
+			[]string{"get"},
+			nil})
+
+	beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:ChargeController"] = append(beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:ChargeController"],
+		beego.ControllerComments{
+			"PostHooks",
+			`/`,
+			[]string{"post"},
+			nil})
+
 	beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:GoodsController"] = append(beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:GoodsController"],
 		beego.ControllerComments{
 			"GetOne",
@@ -24,13 +38,6 @@ func init() {
 		beego.ControllerComments{
 			"GetGoodsByCate",
 			`/cate/:cid`,
-			[]string{"get"},
-			nil})
-
-	beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:GoodsController"] = append(beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:GoodsController"],
-		beego.ControllerComments{
-			"GetAll",
-			`/`,
 			[]string{"get"},
 			nil})
 
@@ -94,6 +101,13 @@ func init() {
 		beego.ControllerComments{
 			"GetFailByUser",
 			`/fail/user/:uid`,
+			[]string{"get"},
+			nil})
+
+	beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:LotteryTopListController"] = append(beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:LotteryTopListController"],
+		beego.ControllerComments{
+			"GetAll",
+			`/`,
 			[]string{"get"},
 			nil})
 

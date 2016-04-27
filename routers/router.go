@@ -9,7 +9,6 @@ package routers
 
 import (
 	"github.com/shawncode/highlego-api/controllers"
-
 	"github.com/astaxie/beego"
 )
 
@@ -37,6 +36,11 @@ func init() {
 		beego.NSNamespace("/lotteryOrder",
 			beego.NSInclude(
 				&controllers.LotteryOrderController{},
+			),
+		),
+		beego.NSNamespace("/charge",
+			beego.NSInclude(
+				&controllers.ChargeController{},
 			),
 		),
 
