@@ -19,6 +19,7 @@ type LotteryOrder struct {
 	PayTime		   time.Time `orm:"column(payTime);null" description:"夺宝订单支付时间"`
 }
 
+
 func (t *LotteryOrder) TableName() string {
 	return "lotteryOrder"
 }

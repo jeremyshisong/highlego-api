@@ -13,6 +13,13 @@ type LotteryOrderController struct {
 	beego.Controller
 }
 
+type Params struct {
+	Gid     int       `required:"true" description:"夺宝商品id"`
+	Tid     int       `required:"true" description:"夺宝标题"`
+	Uid     int       `required:"true" description:"夺宝订单用户id"`
+	PayType string     `required:"true" description:"夺宝订单支付方式"`
+}
+
 func (c *LotteryOrderController) URLMapping() {
 	c.Mapping("Post", c.Post)
 	c.Mapping("GetOne", c.GetOne)
@@ -23,19 +30,27 @@ func (c *LotteryOrderController) URLMapping() {
 
 // @Title Post
 // @Description 新增一条夺宝订单
-// @Param	body		body 	models.LotteryOrder{Gid int,Uid int}	true		"body for LotteryOrder content"
-// @Success 201 {int} models.Lottery
-// @Failure 403 body is empty
+// @Param	body	body  controllers.Params 	true		"body for Object content"
+// @Success 201 {object}  models.LotteryOrder
+// @Success 402 {object}  controllers.Params
+// @Failure 403 controllers.Params is null
 // @router / [post]
 func (c *LotteryOrderController) Post() {
-	var v models.LotteryOrder
+	var params Params
 	ret := cnst.Error()
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err != nil {
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &params); err != nil {
 		ret.Message = err.Error()
 		c.Data["json"] = ret
 		c.ServeJSON()
 		return
 	}
+
+	var v models.LotteryOrder
+	v.Gid = params.Gid
+	v.Tid = params.Tid
+	v.PayType = params.PayType
+	v.Uid = params.Uid
+
 
 	u, err := models.GetUserById(v.Uid);
 	if err != nil {
