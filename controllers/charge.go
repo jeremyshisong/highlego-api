@@ -87,8 +87,8 @@ func (c *ChargeController) PostHooks() {
 		ret_order := webhook.Data.Object["order_no"]
 		ret_channel := webhook.Data.Object["channel"]
 		ret_pay_time := webhook.Data.Object["time_paid"]
+		ret_paid := webhook.Data.Object["paid"]
 		c.Ctx.ResponseWriter.WriteHeader(http.StatusOK)
-		c.Data["json"] = ret_order
 		order_id, _ := strconv.Atoi(ret_order.(string))
 		v, err := models.GetLotteryOrderById(order_id)
 		if err == nil {
@@ -96,8 +96,11 @@ func (c *ChargeController) PostHooks() {
 			time_stamp, _ := json.Number.Int64(ret_pay_time.(json.Number))
 			v.PayTime = time.Unix(time_stamp, 0)
 			v.Status = "wait"
+			if !ret_paid.(bool) {
+				v.Status = "fail"
+			}
 			if err := models.UpdateLotteryOrderById(v); err == nil {
-				c.Data["json"] = "OK"
+				c.Data["json"] = v
 			} else {
 				c.Data["json"] = err.Error()
 			}

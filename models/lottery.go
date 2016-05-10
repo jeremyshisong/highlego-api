@@ -14,6 +14,7 @@ type Lottery struct {
 	Title       string    `orm:"column(title);size(20);null" description:"夺宝标题"`
 	Goods       *Goods    `orm:"column(gid);rel(fk)" description:"夺宝商品"`
 	LeftOrders  int       `orm:"column(leftOrders);null" description:"剩余参与数量"`
+	StartTime   time.Time `orm:"column(startTime);type(datetime);null" description:"过期时间"`
 	ExpiredTime time.Time `orm:"column(expiredTime);type(datetime);null" description:"过期时间"`
 	Status      string    `orm:"column(status);null" description:"夺宝状态:wait=等待开奖,expired=过期,closed=关闭,published=已开奖`
 }
@@ -114,24 +115,11 @@ func UpdateExpired(m *Lottery) (id int64, err error) {
 	v := Lottery{Id: m.Id}
 	// ascertain id exists in the database
 	if err = o.Read(&v); err == nil {
-		var num int64
-		if err := o.Begin(); err == nil {
-			m.Status = "expired"
-			if num, err = o.Update(m); err == nil {
-				fmt.Println("Number of records updated in database:", num)
-				v.Status = "wait"
-				v.Term += 1
-				v.ExpiredTime = time.Now()
-				id, err = o.Insert(&v)
-				if err == nil {
-					o.Commit()
-				}else {
-					o.Rollback()
-				}
-			}else {
-				o.Rollback()
-			}
-		}
+		var goods *Goods
+		goods = v.Goods
+		rate := (float64)(v.LeftOrders / int(goods.Price))
+		v.ExpiredTime = time.Now().Add(time.Duration(2 * 60 * 60 * rate) * time.Second)
+		o.Update(v)
 	}
 	return
 }

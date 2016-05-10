@@ -10,6 +10,7 @@ const (
 	CodeUpdateFail = "302"
 	CodeNoEnoughCoins = "501"
 	Code = "American Express"
+	CodeOrderNumError = "303"
 )
 
 const (
@@ -19,6 +20,7 @@ const (
 	MsgUpdateOK = "update success"
 	MsgUpdateFail = "update fail"
 	MsgQBFail = "query db occour an error"
+	MsgOrderNumError = "order num error"
 )
 
 type Result struct {

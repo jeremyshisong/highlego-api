@@ -41,6 +41,13 @@ func init() {
 			[]string{"get"},
 			nil})
 
+	beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:GoodsController"] = append(beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:GoodsController"],
+		beego.ControllerComments{
+			"GetAll",
+			`/`,
+			[]string{"get"},
+			nil})
+
 	beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:LotteryController"] = append(beego.GlobalControllerRouter["github.com/shawncode/highlego-api/controllers:LotteryController"],
 		beego.ControllerComments{
 			"GetOne",

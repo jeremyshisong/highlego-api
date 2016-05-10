@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"github.com/astaxie/beego"
 	"github.com/shawncode/highlego-api/cnst"
+	"bytes"
 )
 
 // 夺宝订单接口
@@ -17,7 +18,8 @@ type Params struct {
 	Gid     int       `required:"true" description:"夺宝商品id"`
 	Tid     int       `required:"true" description:"夺宝标题"`
 	Uid     int       `required:"true" description:"夺宝订单用户id"`
-	PayType string     `required:"true" description:"夺宝订单支付方式"`
+	PayType string    `required:"true" description:"夺宝订单支付方式"`
+	Count   int       `required:"true" description:"购买数量"`
 }
 
 func (c *LotteryOrderController) URLMapping() {
@@ -38,8 +40,16 @@ func (c *LotteryOrderController) URLMapping() {
 func (c *LotteryOrderController) Post() {
 	var params Params
 	ret := cnst.Error()
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &params); err != nil {
+	if err := json.NewDecoder(bytes.NewBuffer(c.Ctx.Input.RequestBody)).Decode(&params); err != nil {
 		ret.Message = err.Error()
+		c.Data["json"] = c.Ctx.Input.RequestBody
+		c.ServeJSON()
+		return
+	}
+
+	if params.Count < 1 || params.Count > 10 {
+		ret.Message = cnst.MsgOrderNumError
+		ret.Code = cnst.CodeOrderNumError
 		c.Data["json"] = ret
 		c.ServeJSON()
 		return
@@ -68,16 +78,6 @@ func (c *LotteryOrderController) Post() {
 		return
 	}
 
-	if u.Coins < g.Punit {
-		ret := cnst.Error()
-		ret.Code = cnst.CodeNoEnoughCoins
-		ret.Message = "not enough coins"
-		c.Data["json"] = ret
-		c.ServeJSON()
-		return
-	}
-
-
 	ml, err := models.GetLotteryByGid(g.Id);
 	if err != nil {
 		ret.Message = err.Error()
@@ -91,6 +91,15 @@ func (c *LotteryOrderController) Post() {
 		return
 	}
 
+	if u.Coins < g.Punit * params.Count {
+		ret := cnst.Error()
+		ret.Code = cnst.CodeNoEnoughCoins
+		ret.Message = "not enough coins"
+		c.Data["json"] = ret
+		c.ServeJSON()
+		return
+	}
+
 	l := ml[0]
 
 	v.Tid = l.Id
@@ -98,16 +107,28 @@ func (c *LotteryOrderController) Post() {
 	v.Gid = g.Id
 	v.Uid = u.Id
 
-	v.LotteryNo = "121221212"
-
-	if _, err := models.AddLotteryOrder(&v); err == nil {
-		c.Ctx.Output.SetStatus(201)
-		ret := cnst.Succ()
-		ret.Value = v
-		c.Data["json"] = ret
+	var orderCount int
+	if l.LeftOrders < params.Count {
+		orderCount = l.LeftOrders
 	} else {
-		c.Data["json"] = cnst.Error()
+		orderCount = params.Count
 	}
+
+	//扣钱
+	u.Coins = u.Coins - orderCount
+	for i := 0; i < orderCount; i++ {
+		v.LotteryNo = strconv.Itoa(121221212 + i)
+		if _, err := models.AddLotteryOrder(&v, u); err == nil {
+			c.Ctx.Output.SetStatus(201)
+			ret := cnst.Succ()
+			ret.Value = v
+			c.Data["json"] = ret
+		} else {
+			c.Data["json"] = cnst.Error()
+		}
+	}
+
+
 	c.ServeJSON()
 }
 

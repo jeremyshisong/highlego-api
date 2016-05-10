@@ -1,10 +1,10 @@
 package models
 
 import (
-	"errors"
-	"fmt"
 	"time"
 	"github.com/astaxie/beego/orm"
+	"errors"
+	"fmt"
 )
 
 type LotteryOrder struct {
@@ -30,9 +30,15 @@ func init() {
 
 // AddLotteryOrder insert a new LotteryOrder into database and returns
 // last inserted Id on success.
-func AddLotteryOrder(m *LotteryOrder) (id int64, err error) {
+func AddLotteryOrder(m *LotteryOrder, u *User) (id int64, err error) {
 	o := orm.NewOrm()
-	id, err = o.Insert(m)
+	o.Begin()
+	o.Update(u)
+	o.Insert(m);
+	if errC := o.Commit(); errC != nil {
+		errR := o.Rollback()
+		err = errR
+	}
 	return
 }
 
